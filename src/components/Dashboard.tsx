@@ -1,11 +1,11 @@
-
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import VehicleDataCard from "./VehicleDataCard";
+import WheelAlignmentChart from "./WheelAlignmentChart";
 import { BarChart3, Car, Database, Plus, TrendingUp } from "lucide-react";
 
 const Dashboard = () => {
-  // Sample data - in real app this would come from your backend
+  // Sample data with detailed alignment measurements
   const vehicles = [
     {
       id: "1",
@@ -37,6 +37,24 @@ const Dashboard = () => {
     }
   ];
 
+  // Detailed wheel alignment data for graphical view
+  const wheelAlignmentData = {
+    make: "Toyota",
+    model: "Camry",
+    year: 2022,
+    measurements: {
+      frontLeftToe: { value: 0.12, unit: "°", min: -0.15, max: 0.15, label: "Front Left Toe" },
+      frontRightToe: { value: 0.08, unit: "°", min: -0.15, max: 0.15, label: "Front Right Toe" },
+      rearLeftToe: { value: -0.08, unit: "°", min: -0.20, max: 0.20, label: "Rear Left Toe" },
+      rearRightToe: { value: 0.25, unit: "°", min: -0.20, max: 0.20, label: "Rear Right Toe" }, // Out of range
+      frontLeftCamber: { value: 0.15, unit: "°", min: -0.50, max: 0.50, label: "Front Left Camber" },
+      frontRightCamber: { value: -0.35, unit: "°", min: -0.50, max: 0.50, label: "Front Right Camber" },
+      rearLeftCamber: { value: 0.22, unit: "°", min: -0.30, max: 0.30, label: "Rear Left Camber" },
+      rearRightCamber: { value: 0.45, unit: "°", min: -0.30, max: 0.30, label: "Rear Right Camber" } // Out of range
+    }
+  };
+
+  // Sample data - in real app this would come from your backend
   const stats = [
     {
       title: "Total Vehicles",
@@ -100,6 +118,11 @@ const Dashboard = () => {
               </CardContent>
             </Card>
           ))}
+        </div>
+
+        {/* Wheel Alignment Visualization */}
+        <div className="mb-8">
+          <WheelAlignmentChart vehicle={wheelAlignmentData} />
         </div>
 
         {/* Vehicle List */}
