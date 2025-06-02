@@ -28,7 +28,7 @@ const UserDashboard = () => {
     if (!user) return;
     
     try {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('alignment_records')
         .select('id, vehicle_make, vehicle_model, vehicle_year, customer_name, created_at')
         .eq('user_id', user.id)

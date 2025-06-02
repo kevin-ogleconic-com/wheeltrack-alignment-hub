@@ -67,7 +67,7 @@ const AlignmentRecordForm = ({ onSaved, onCancel }: AlignmentRecordFormProps) =>
         front_right_caster: formData.front_right_caster ? parseFloat(formData.front_right_caster) : null,
       };
 
-      const { error } = await supabase
+      const { error } = await (supabase as any)
         .from('alignment_records')
         .insert([recordData]);
 
