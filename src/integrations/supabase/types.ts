@@ -9,7 +9,141 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      alignment_records: {
+        Row: {
+          created_at: string
+          customer_name: string | null
+          customer_phone: string | null
+          front_left_camber: number | null
+          front_left_caster: number | null
+          front_left_toe: number | null
+          front_right_camber: number | null
+          front_right_caster: number | null
+          front_right_toe: number | null
+          id: string
+          notes: string | null
+          rear_left_camber: number | null
+          rear_left_toe: number | null
+          rear_right_camber: number | null
+          rear_right_toe: number | null
+          updated_at: string
+          user_id: string
+          vehicle_make: string
+          vehicle_model: string
+          vehicle_year: number
+          vin: string | null
+        }
+        Insert: {
+          created_at?: string
+          customer_name?: string | null
+          customer_phone?: string | null
+          front_left_camber?: number | null
+          front_left_caster?: number | null
+          front_left_toe?: number | null
+          front_right_camber?: number | null
+          front_right_caster?: number | null
+          front_right_toe?: number | null
+          id?: string
+          notes?: string | null
+          rear_left_camber?: number | null
+          rear_left_toe?: number | null
+          rear_right_camber?: number | null
+          rear_right_toe?: number | null
+          updated_at?: string
+          user_id: string
+          vehicle_make: string
+          vehicle_model: string
+          vehicle_year: number
+          vin?: string | null
+        }
+        Update: {
+          created_at?: string
+          customer_name?: string | null
+          customer_phone?: string | null
+          front_left_camber?: number | null
+          front_left_caster?: number | null
+          front_left_toe?: number | null
+          front_right_camber?: number | null
+          front_right_caster?: number | null
+          front_right_toe?: number | null
+          id?: string
+          notes?: string | null
+          rear_left_camber?: number | null
+          rear_left_toe?: number | null
+          rear_right_camber?: number | null
+          rear_right_toe?: number | null
+          updated_at?: string
+          user_id?: string
+          vehicle_make?: string
+          vehicle_model?: string
+          vehicle_year?: number
+          vin?: string | null
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          created_at: string
+          email: string
+          first_name: string | null
+          id: string
+          last_name: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          first_name?: string | null
+          id: string
+          last_name?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          first_name?: string | null
+          id?: string
+          last_name?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      subscribers: {
+        Row: {
+          created_at: string
+          email: string
+          id: string
+          stripe_customer_id: string | null
+          subscribed: boolean
+          subscription_end: string | null
+          subscription_tier: string | null
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          id?: string
+          stripe_customer_id?: string | null
+          subscribed?: boolean
+          subscription_end?: string | null
+          subscription_tier?: string | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          id?: string
+          stripe_customer_id?: string | null
+          subscribed?: boolean
+          subscription_end?: string | null
+          subscription_tier?: string | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
