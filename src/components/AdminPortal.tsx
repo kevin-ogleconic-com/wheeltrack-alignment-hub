@@ -48,20 +48,30 @@ const AdminPortal = ({ onBack }: { onBack: () => void }) => {
           email, 
           first_name, 
           last_name, 
-          created_at,
-          user_roles!inner(role)
+          created_at
         `);
 
       if (profilesError) throw profilesError;
 
-      const usersWithRoles = profilesData?.map(profile => ({
-        id: profile.id,
-        email: profile.email,
-        first_name: profile.first_name,
-        last_name: profile.last_name,
-        created_at: profile.created_at,
-        role: profile.user_roles[0]?.role || 'standard_user'
-      })) || [];
+      // Fetch user roles separately
+      const { data: rolesData, error: rolesError } = await supabase
+        .from('user_roles')
+        .select('user_id, role');
+
+      if (rolesError) throw rolesError;
+
+      // Combine profiles with roles
+      const usersWithRoles = profilesData?.map(profile => {
+        const userRole = rolesData?.find(role => role.user_id === profile.id);
+        return {
+          id: profile.id,
+          email: profile.email,
+          first_name: profile.first_name,
+          last_name: profile.last_name,
+          created_at: profile.created_at,
+          role: userRole?.role || 'standard_user'
+        };
+      }) || [];
 
       setUsers(usersWithRoles);
     } catch (error) {
@@ -85,17 +95,26 @@ const AdminPortal = ({ onBack }: { onBack: () => void }) => {
           vehicle_model,
           vehicle_year,
           customer_name,
-          created_at,
-          profiles!inner(email)
+          created_at
         `)
         .order('created_at', { ascending: false });
 
       if (error) throw error;
 
-      const recordsWithEmails = data?.map(record => ({
-        ...record,
-        user_email: record.profiles?.email
-      })) || [];
+      // Fetch user emails separately
+      const { data: profilesData, error: profilesError } = await supabase
+        .from('profiles')
+        .select('id, email');
+
+      if (profilesError) throw profilesError;
+
+      const recordsWithEmails = data?.map(record => {
+        const profile = profilesData?.find(p => p.id === record.user_id);
+        return {
+          ...record,
+          user_email: profile?.email
+        };
+      }) || [];
 
       setRecords(recordsWithEmails);
     } catch (error) {
@@ -114,7 +133,7 @@ const AdminPortal = ({ onBack }: { onBack: () => void }) => {
         .from('user_roles')
         .upsert({
           user_id: userId,
-          role: newRole
+          role: newRole as 'admin' | 'technical_support' | 'standard_user'
         });
 
       if (error) throw error;
