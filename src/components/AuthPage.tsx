@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Car, Mail, Lock, User } from 'lucide-react';
+import { Car, Mail, Lock, User, Shield } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
 
@@ -20,6 +20,8 @@ const AuthPage = () => {
   const { signIn, signUp } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
+
+  const isAdminSignup = email === 'admin@alignpro.com';
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -42,10 +44,21 @@ const AuthPage = () => {
           navigate('/dashboard');
         }
       } else {
+        if (isAdminSignup && password !== 'qadmin') {
+          toast({
+            title: "Invalid admin credentials",
+            description: "Please use the correct initial admin password.",
+            variant: "destructive"
+          });
+          setLoading(false);
+          return;
+        }
+
         const { error } = await signUp(email, password, {
           first_name: firstName,
           last_name: lastName
         });
+        
         if (error) {
           toast({
             title: "Error creating account",
@@ -53,10 +66,17 @@ const AuthPage = () => {
             variant: "destructive"
           });
         } else {
-          toast({
-            title: "Account created!",
-            description: "Please check your email to verify your account."
-          });
+          if (isAdminSignup) {
+            toast({
+              title: "Admin account created!",
+              description: "Please check your email to verify your account, then sign in to access the admin portal."
+            });
+          } else {
+            toast({
+              title: "Account created!",
+              description: "Please check your email to verify your account."
+            });
+          }
         }
       }
     } catch (error) {
@@ -76,12 +96,19 @@ const AuthPage = () => {
         <CardHeader className="text-center">
           <div className="flex items-center justify-center mb-4">
             <div className="p-3 rounded-lg gradient-blue">
-              <Car className="h-8 w-8 text-white" />
+              {isAdminSignup ? (
+                <Shield className="h-8 w-8 text-white" />
+              ) : (
+                <Car className="h-8 w-8 text-white" />
+              )}
             </div>
           </div>
           <CardTitle className="text-2xl text-white">
-            {isLogin ? 'Sign In' : 'Create Account'}
+            {isAdminSignup ? 'Admin Setup' : (isLogin ? 'Sign In' : 'Create Account')}
           </CardTitle>
+          {isAdminSignup && (
+            <p className="text-gray-400 text-sm">Setting up the initial admin account</p>
+          )}
         </CardHeader>
         
         <CardContent>
@@ -128,13 +155,18 @@ const AuthPage = () => {
                 <Input
                   id="email"
                   type="email"
-                  placeholder="john@example.com"
+                  placeholder={isAdminSignup ? "admin@alignpro.com" : "john@example.com"}
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   className="pl-10 bg-slate-700 border-slate-600 text-white"
                   required
                 />
               </div>
+              {!isLogin && email === 'admin@alignpro.com' && (
+                <p className="text-yellow-400 text-xs">
+                  Creating initial admin account. Use password: qadmin
+                </p>
+              )}
             </div>
             
             <div className="space-y-2">
@@ -144,7 +176,7 @@ const AuthPage = () => {
                 <Input
                   id="password"
                   type="password"
-                  placeholder="••••••••"
+                  placeholder={isAdminSignup ? "qadmin" : "••••••••"}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   className="pl-10 bg-slate-700 border-slate-600 text-white"
@@ -173,6 +205,14 @@ const AuthPage = () => {
             >
               {isLogin ? 'Sign up' : 'Sign in'}
             </Button>
+          </div>
+
+          <div className="mt-4 p-3 bg-slate-700/50 rounded-lg border border-slate-600">
+            <p className="text-gray-300 text-sm font-medium mb-1">Initial Admin Setup:</p>
+            <p className="text-gray-400 text-xs">
+              Email: admin@alignpro.com<br />
+              Password: qadmin
+            </p>
           </div>
         </CardContent>
       </Card>

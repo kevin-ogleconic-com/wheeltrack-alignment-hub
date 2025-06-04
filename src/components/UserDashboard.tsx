@@ -1,11 +1,11 @@
-
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { supabase } from '@/integrations/supabase/client';
 import AlignmentRecordForm from './AlignmentRecordForm';
-import { Car, Plus, Database, User, LogOut } from 'lucide-react';
+import AdminPortal from './AdminPortal';
+import { Car, Plus, Database, User, LogOut, Shield } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 interface AlignmentRecord {
@@ -18,11 +18,14 @@ interface AlignmentRecord {
 }
 
 const UserDashboard = () => {
-  const { user, signOut } = useAuth();
+  const { user, userRole, signOut } = useAuth();
   const { toast } = useToast();
   const [records, setRecords] = useState<AlignmentRecord[]>([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
+  const [showAdminPortal, setShowAdminPortal] = useState(false);
+
+  const canAccessAdmin = userRole === 'admin' || userRole === 'technical_support';
 
   const fetchRecords = async () => {
     if (!user) return;
@@ -65,6 +68,10 @@ const UserDashboard = () => {
     });
   };
 
+  if (showAdminPortal) {
+    return <AdminPortal onBack={() => setShowAdminPortal(false)} />;
+  }
+
   if (showForm) {
     return (
       <div className="min-h-screen pt-20 p-4">
@@ -85,9 +92,29 @@ const UserDashboard = () => {
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8">
           <div>
             <h1 className="text-3xl font-bold text-white mb-2">Dashboard</h1>
-            <p className="text-gray-400">Welcome back, {user?.email}</p>
+            <div className="flex items-center gap-2">
+              <p className="text-gray-400">Welcome back, {user?.email}</p>
+              {userRole && (
+                <span className={`px-2 py-1 rounded text-xs font-medium ${
+                  userRole === 'admin' ? 'bg-red-500/20 text-red-400' :
+                  userRole === 'technical_support' ? 'bg-yellow-500/20 text-yellow-400' :
+                  'bg-green-500/20 text-green-400'
+                }`}>
+                  {userRole.replace('_', ' ').toUpperCase()}
+                </span>
+              )}
+            </div>
           </div>
           <div className="flex flex-col sm:flex-row gap-3">
+            {canAccessAdmin && (
+              <Button 
+                onClick={() => setShowAdminPortal(true)}
+                className="gradient-blue text-white border-0 hover:opacity-90"
+              >
+                <Shield className="h-4 w-4 mr-2" />
+                Admin Portal
+              </Button>
+            )}
             <Button 
               onClick={() => setShowForm(true)}
               className="gradient-blue text-white border-0 hover:opacity-90"
