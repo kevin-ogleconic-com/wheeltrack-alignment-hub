@@ -11,6 +11,10 @@ export type Database = {
     Tables: {
       alignment_records: {
         Row: {
+          after_measurements: Json | null
+          alignment_type: string | null
+          before_measurements: Json | null
+          completion_status: string | null
           created_at: string
           customer_name: string | null
           customer_phone: string | null
@@ -21,19 +25,29 @@ export type Database = {
           front_right_caster: number | null
           front_right_toe: number | null
           id: string
+          license_plate: string | null
+          mileage: number | null
           notes: string | null
           rear_left_camber: number | null
           rear_left_toe: number | null
           rear_right_camber: number | null
           rear_right_toe: number | null
+          service_advisor: string | null
+          specifications: Json | null
+          technician_name: string | null
           updated_at: string
           user_id: string
           vehicle_make: string
           vehicle_model: string
           vehicle_year: number
           vin: string | null
+          work_order_number: string | null
         }
         Insert: {
+          after_measurements?: Json | null
+          alignment_type?: string | null
+          before_measurements?: Json | null
+          completion_status?: string | null
           created_at?: string
           customer_name?: string | null
           customer_phone?: string | null
@@ -44,19 +58,29 @@ export type Database = {
           front_right_caster?: number | null
           front_right_toe?: number | null
           id?: string
+          license_plate?: string | null
+          mileage?: number | null
           notes?: string | null
           rear_left_camber?: number | null
           rear_left_toe?: number | null
           rear_right_camber?: number | null
           rear_right_toe?: number | null
+          service_advisor?: string | null
+          specifications?: Json | null
+          technician_name?: string | null
           updated_at?: string
           user_id: string
           vehicle_make: string
           vehicle_model: string
           vehicle_year: number
           vin?: string | null
+          work_order_number?: string | null
         }
         Update: {
+          after_measurements?: Json | null
+          alignment_type?: string | null
+          before_measurements?: Json | null
+          completion_status?: string | null
           created_at?: string
           customer_name?: string | null
           customer_phone?: string | null
@@ -67,17 +91,23 @@ export type Database = {
           front_right_caster?: number | null
           front_right_toe?: number | null
           id?: string
+          license_plate?: string | null
+          mileage?: number | null
           notes?: string | null
           rear_left_camber?: number | null
           rear_left_toe?: number | null
           rear_right_camber?: number | null
           rear_right_toe?: number | null
+          service_advisor?: string | null
+          specifications?: Json | null
+          technician_name?: string | null
           updated_at?: string
           user_id?: string
           vehicle_make?: string
           vehicle_model?: string
           vehicle_year?: number
           vin?: string | null
+          work_order_number?: string | null
         }
         Relationships: []
       }
@@ -165,6 +195,66 @@ export type Database = {
           role?: Database["public"]["Enums"]["app_role"]
           updated_at?: string
           user_id?: string
+        }
+        Relationships: []
+      }
+      vehicle_specifications: {
+        Row: {
+          created_at: string
+          front_camber_max: number | null
+          front_camber_min: number | null
+          front_caster_max: number | null
+          front_caster_min: number | null
+          front_toe_max: number | null
+          front_toe_min: number | null
+          id: string
+          make: string
+          model: string
+          rear_camber_max: number | null
+          rear_camber_min: number | null
+          rear_toe_max: number | null
+          rear_toe_min: number | null
+          trim_level: string | null
+          updated_at: string
+          year: number
+        }
+        Insert: {
+          created_at?: string
+          front_camber_max?: number | null
+          front_camber_min?: number | null
+          front_caster_max?: number | null
+          front_caster_min?: number | null
+          front_toe_max?: number | null
+          front_toe_min?: number | null
+          id?: string
+          make: string
+          model: string
+          rear_camber_max?: number | null
+          rear_camber_min?: number | null
+          rear_toe_max?: number | null
+          rear_toe_min?: number | null
+          trim_level?: string | null
+          updated_at?: string
+          year: number
+        }
+        Update: {
+          created_at?: string
+          front_camber_max?: number | null
+          front_camber_min?: number | null
+          front_caster_max?: number | null
+          front_caster_min?: number | null
+          front_toe_max?: number | null
+          front_toe_min?: number | null
+          id?: string
+          make?: string
+          model?: string
+          rear_camber_max?: number | null
+          rear_camber_min?: number | null
+          rear_toe_max?: number | null
+          rear_toe_min?: number | null
+          trim_level?: string | null
+          updated_at?: string
+          year?: number
         }
         Relationships: []
       }
