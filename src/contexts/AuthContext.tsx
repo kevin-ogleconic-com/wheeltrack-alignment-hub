@@ -32,14 +32,21 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   const fetchUserRole = async (userId: string) => {
     try {
+      console.log('Fetching user role for:', userId);
       const { data, error } = await supabase.rpc('get_user_role', {
         _user_id: userId
       });
       
-      if (error) throw error;
+      if (error) {
+        console.error('Error fetching user role:', error);
+        setUserRole('standard_user'); // Default fallback
+        return;
+      }
+      
+      console.log('User role fetched:', data);
       setUserRole(data);
     } catch (error) {
-      console.error('Error fetching user role:', error);
+      console.error('Error in fetchUserRole:', error);
       setUserRole('standard_user'); // Default fallback
     }
   };
@@ -51,15 +58,19 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   useEffect(() => {
-    // Check for existing session first
+    console.log('AuthProvider: Setting up auth...');
+    
+    // Initialize auth state
     const initializeAuth = async () => {
       try {
+        console.log('AuthProvider: Getting initial session...');
         const { data: { session }, error } = await supabase.auth.getSession();
         
         if (error) {
-          console.error('Error getting session:', error);
+          console.error('Error getting initial session:', error);
         }
         
+        console.log('AuthProvider: Initial session:', session?.user?.email || 'No session');
         setSession(session);
         setUser(session?.user ?? null);
         
@@ -71,19 +82,25 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       } catch (error) {
         console.error('Error initializing auth:', error);
       } finally {
+        console.log('AuthProvider: Setting loading to false');
         setLoading(false);
       }
     };
 
-    // Set up auth state listener
+    // Set up auth state listener - IMPORTANT: No async function here
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
-        console.log('Auth state changed:', event, session?.user?.email);
+      (event, session) => {
+        console.log('Auth state changed:', event, session?.user?.email || 'No session');
+        
+        // Update state synchronously
         setSession(session);
         setUser(session?.user ?? null);
         
+        // Handle role fetching in a separate microtask to avoid React hook violations
         if (session?.user) {
-          await fetchUserRole(session.user.id);
+          setTimeout(() => {
+            fetchUserRole(session.user.id);
+          }, 0);
         } else {
           setUserRole(null);
         }
@@ -96,10 +113,14 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     // Initialize auth
     initializeAuth();
 
-    return () => subscription.unsubscribe();
+    return () => {
+      console.log('AuthProvider: Cleaning up subscription');
+      subscription.unsubscribe();
+    };
   }, []);
 
   const signUp = async (email: string, password: string, userData?: any) => {
+    console.log('AuthProvider: Signing up user:', email);
     const redirectUrl = `${window.location.origin}/`;
     
     const { error } = await supabase.auth.signUp({
@@ -134,6 +155,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   const signIn = async (email: string, password: string) => {
+    console.log('AuthProvider: Signing in user:', email);
     const { error } = await supabase.auth.signInWithPassword({
       email,
       password
@@ -142,6 +164,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   const signOut = async () => {
+    console.log('AuthProvider: Signing out user');
     await supabase.auth.signOut();
   };
 
@@ -155,6 +178,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     signOut,
     refreshUserRole
   };
+
+  console.log('AuthProvider: Rendering with loading:', loading, 'user:', user?.email || 'No user');
 
   return (
     <AuthContext.Provider value={value}>
