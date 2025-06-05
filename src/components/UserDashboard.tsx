@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -75,7 +74,14 @@ const UserDashboard = () => {
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      setRecords(data || []);
+      
+      // Type assertion to ensure completion_status matches our expected union type
+      const typedData = (data || []).map(record => ({
+        ...record,
+        completion_status: (record.completion_status || 'pending') as 'pending' | 'in_progress' | 'completed' | 'on_hold'
+      }));
+      
+      setRecords(typedData);
     } catch (error) {
       console.error('Error fetching records:', error);
       toast({
