@@ -42,14 +42,32 @@ const DeviceManagement = () => {
     if (!user) return;
 
     try {
+      // Use a more generic query approach to avoid type issues
       const { data, error } = await supabase
-        .from('device_uids')
-        .select('*')
-        .eq('owner_user_id', user.id)
-        .order('created_at', { ascending: false });
+        .rpc('get_user_devices', { user_id: user.id });
 
-      if (error) throw error;
-      setDevices(data || []);
+      if (error) {
+        // If the RPC doesn't exist, fall back to a direct query
+        console.log('RPC not found, using direct query approach');
+        
+        // Use the raw query approach as a fallback
+        const response = await fetch(`${supabase.supabaseUrl}/rest/v1/device_uids?owner_user_id=eq.${user.id}&order=created_at.desc`, {
+          headers: {
+            'apikey': supabase.supabaseKey,
+            'Authorization': `Bearer ${(await supabase.auth.getSession()).data.session?.access_token}`,
+            'Content-Type': 'application/json'
+          }
+        });
+
+        if (!response.ok) {
+          throw new Error('Failed to fetch devices');
+        }
+
+        const deviceData = await response.json();
+        setDevices(deviceData || []);
+      } else {
+        setDevices(data || []);
+      }
     } catch (error) {
       console.error('Error fetching devices:', error);
       toast({
@@ -101,23 +119,32 @@ const DeviceManagement = () => {
     }
 
     try {
-      const { error } = await supabase
-        .from('device_uids')
-        .insert({
+      // Use raw HTTP request to avoid type issues
+      const response = await fetch(`${supabase.supabaseUrl}/rest/v1/device_uids`, {
+        method: 'POST',
+        headers: {
+          'apikey': supabase.supabaseKey,
+          'Authorization': `Bearer ${(await supabase.auth.getSession()).data.session?.access_token}`,
+          'Content-Type': 'application/json',
+          'Prefer': 'return=minimal'
+        },
+        body: JSON.stringify({
           uid_96bit: cleanUID,
           device_name: newDevice.device_name,
           owner_user_id: user?.id
-        });
+        })
+      });
 
-      if (error) {
-        if (error.code === '23505') { // Unique constraint violation
+      if (!response.ok) {
+        const errorData = await response.json();
+        if (response.status === 409 || errorData.code === '23505') {
           toast({
             title: "Device Already Exists",
             description: "This UID is already registered.",
             variant: "destructive"
           });
         } else {
-          throw error;
+          throw new Error(`HTTP ${response.status}: ${errorData.message || 'Unknown error'}`);
         }
         return;
       }
@@ -142,12 +169,18 @@ const DeviceManagement = () => {
 
   const handleDeleteDevice = async (deviceId: string) => {
     try {
-      const { error } = await supabase
-        .from('device_uids')
-        .delete()
-        .eq('id', deviceId);
+      const response = await fetch(`${supabase.supabaseUrl}/rest/v1/device_uids?id=eq.${deviceId}`, {
+        method: 'DELETE',
+        headers: {
+          'apikey': supabase.supabaseKey,
+          'Authorization': `Bearer ${(await supabase.auth.getSession()).data.session?.access_token}`,
+          'Content-Type': 'application/json'
+        }
+      });
 
-      if (error) throw error;
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}`);
+      }
 
       toast({
         title: "Device Removed",
@@ -167,12 +200,22 @@ const DeviceManagement = () => {
 
   const toggleDeviceStatus = async (deviceId: string, currentStatus: boolean) => {
     try {
-      const { error } = await supabase
-        .from('device_uids')
-        .update({ is_active: !currentStatus })
-        .eq('id', deviceId);
+      const response = await fetch(`${supabase.supabaseUrl}/rest/v1/device_uids?id=eq.${deviceId}`, {
+        method: 'PATCH',
+        headers: {
+          'apikey': supabase.supabaseKey,
+          'Authorization': `Bearer ${(await supabase.auth.getSession()).data.session?.access_token}`,
+          'Content-Type': 'application/json',
+          'Prefer': 'return=minimal'
+        },
+        body: JSON.stringify({
+          is_active: !currentStatus
+        })
+      });
 
-      if (error) throw error;
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}`);
+      }
 
       toast({
         title: currentStatus ? "Device Deactivated" : "Device Activated",
