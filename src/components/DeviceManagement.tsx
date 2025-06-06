@@ -42,32 +42,21 @@ const DeviceManagement = () => {
     if (!user) return;
 
     try {
-      // Use a more generic query approach to avoid type issues
-      const { data, error } = await supabase
-        .rpc('get_user_devices', { user_id: user.id });
-
-      if (error) {
-        // If the RPC doesn't exist, fall back to a direct query
-        console.log('RPC not found, using direct query approach');
-        
-        // Use the raw query approach as a fallback
-        const response = await fetch(`${supabase.supabaseUrl}/rest/v1/device_uids?owner_user_id=eq.${user.id}&order=created_at.desc`, {
-          headers: {
-            'apikey': supabase.supabaseKey,
-            'Authorization': `Bearer ${(await supabase.auth.getSession()).data.session?.access_token}`,
-            'Content-Type': 'application/json'
-          }
-        });
-
-        if (!response.ok) {
-          throw new Error('Failed to fetch devices');
+      // Use the raw query approach directly since device_uids table is not in types
+      const response = await fetch(`https://jsiwxyffmoktxouniklx.supabase.co/rest/v1/device_uids?owner_user_id=eq.${user.id}&order=created_at.desc`, {
+        headers: {
+          'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpzaXd4eWZmbW9rdHhvdW5pa2x4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDgyODE1NTAsImV4cCI6MjA2Mzg1NzU1MH0.USd8B04xm2XOqyNtR2wQkjzww6WEa-6eers63zmCNmw',
+          'Authorization': `Bearer ${(await supabase.auth.getSession()).data.session?.access_token}`,
+          'Content-Type': 'application/json'
         }
+      });
 
-        const deviceData = await response.json();
-        setDevices(deviceData || []);
-      } else {
-        setDevices(data || []);
+      if (!response.ok) {
+        throw new Error('Failed to fetch devices');
       }
+
+      const deviceData = await response.json();
+      setDevices(deviceData || []);
     } catch (error) {
       console.error('Error fetching devices:', error);
       toast({
@@ -120,10 +109,10 @@ const DeviceManagement = () => {
 
     try {
       // Use raw HTTP request to avoid type issues
-      const response = await fetch(`${supabase.supabaseUrl}/rest/v1/device_uids`, {
+      const response = await fetch(`https://jsiwxyffmoktxouniklx.supabase.co/rest/v1/device_uids`, {
         method: 'POST',
         headers: {
-          'apikey': supabase.supabaseKey,
+          'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpzaXd4eWZmbW9rdHhvdW5pa2x4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDgyODE1NTAsImV4cCI6MjA2Mzg1NzU1MH0.USd8B04xm2XOqyNtR2wQkjzww6WEa-6eers63zmCNmw',
           'Authorization': `Bearer ${(await supabase.auth.getSession()).data.session?.access_token}`,
           'Content-Type': 'application/json',
           'Prefer': 'return=minimal'
@@ -169,10 +158,10 @@ const DeviceManagement = () => {
 
   const handleDeleteDevice = async (deviceId: string) => {
     try {
-      const response = await fetch(`${supabase.supabaseUrl}/rest/v1/device_uids?id=eq.${deviceId}`, {
+      const response = await fetch(`https://jsiwxyffmoktxouniklx.supabase.co/rest/v1/device_uids?id=eq.${deviceId}`, {
         method: 'DELETE',
         headers: {
-          'apikey': supabase.supabaseKey,
+          'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpzaXd4eWZmbW9rdHhvdW5pa2x4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDgyODE1NTAsImV4cCI6MjA2Mzg1NzU1MH0.USd8B04xm2XOqyNtR2wQkjzww6WEa-6eers63zmCNmw',
           'Authorization': `Bearer ${(await supabase.auth.getSession()).data.session?.access_token}`,
           'Content-Type': 'application/json'
         }
@@ -200,10 +189,10 @@ const DeviceManagement = () => {
 
   const toggleDeviceStatus = async (deviceId: string, currentStatus: boolean) => {
     try {
-      const response = await fetch(`${supabase.supabaseUrl}/rest/v1/device_uids?id=eq.${deviceId}`, {
+      const response = await fetch(`https://jsiwxyffmoktxouniklx.supabase.co/rest/v1/device_uids?id=eq.${deviceId}`, {
         method: 'PATCH',
         headers: {
-          'apikey': supabase.supabaseKey,
+          'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpzaXd4eWZmbW9rdHhvdW5pa2x4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDgyODE1NTAsImV4cCI6MjA2Mzg1NzU1MH0.USd8B04xm2XOqyNtR2wQkjzww6WEa-6eers63zmCNmw',
           'Authorization': `Bearer ${(await supabase.auth.getSession()).data.session?.access_token}`,
           'Content-Type': 'application/json',
           'Prefer': 'return=minimal'
