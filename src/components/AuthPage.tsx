@@ -21,7 +21,7 @@ const AuthPage = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
 
-  const isAdminSignup = email === 'admin@alignpro.com';
+  const isAdminSignup = email === 'kevin@ogleconic.com';
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -59,8 +59,8 @@ const AuthPage = () => {
         }
 
         const { error } = await signUp(email, password, {
-          first_name: firstName || (isAdminSignup ? 'Admin' : ''),
-          last_name: lastName || (isAdminSignup ? 'User' : '')
+          first_name: firstName || (isAdminSignup ? 'Kevin' : ''),
+          last_name: lastName || (isAdminSignup ? 'Admin' : '')
         });
         
         if (error) {
@@ -119,10 +119,10 @@ const AuthPage = () => {
   };
 
   const handleQuickAdminSetup = () => {
-    setEmail('admin@alignpro.com');
+    setEmail('kevin@ogleconic.com');
     setPassword('qadmin');
-    setFirstName('Admin');
-    setLastName('User');
+    setFirstName('Kevin');
+    setLastName('Admin');
     setIsLogin(false);
   };
 
@@ -191,14 +191,14 @@ const AuthPage = () => {
                 <Input
                   id="email"
                   type="email"
-                  placeholder={isAdminSignup ? "admin@alignpro.com" : "john@example.com"}
+                  placeholder={isAdminSignup ? "kevin@ogleconic.com" : "john@example.com"}
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   className="pl-10 bg-slate-700 border-slate-600 text-white"
                   required
                 />
               </div>
-              {!isLogin && email === 'admin@alignpro.com' && (
+              {!isLogin && email === 'kevin@ogleconic.com' && (
                 <p className="text-yellow-400 text-xs">
                   Creating initial admin account. Use password: qadmin
                 </p>
@@ -256,7 +256,7 @@ const AuthPage = () => {
               </Button>
             </div>
             <p className="text-gray-400 text-xs">
-              Email: admin@alignpro.com<br />
+              Email: kevin@ogleconic.com<br />
               Password: qadmin
             </p>
             <p className="text-yellow-400 text-xs mt-1">

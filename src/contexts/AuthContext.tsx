@@ -133,7 +133,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     });
 
     // Check if this is the admin user and assign admin role
-    if (!error && email === 'admin@alignpro.com') {
+    if (!error && email === 'kevin@ogleconic.com') {
       console.log('Admin signup detected, will assign admin role...');
       // The trigger will create the user with standard_user role
       // We need to update it to admin role after user creation
