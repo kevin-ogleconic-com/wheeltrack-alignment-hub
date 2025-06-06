@@ -33,11 +33,30 @@ const AuthPage = () => {
         const { error } = await signIn(email, password);
         if (error) {
           console.error('Sign in error:', error);
-          toast({
-            title: "Error signing in",
-            description: error.message,
-            variant: "destructive"
-          });
+          
+          // Provide more specific error messages
+          if (error.message.includes('Invalid login credentials')) {
+            if (email === 'kevin@ogleconic.com') {
+              toast({
+                title: "Admin login issue",
+                description: "Please ensure you're using 'qadmin' as the password. If the account was just created, try refreshing and logging in again.",
+                variant: "destructive",
+                duration: 7000
+              });
+            } else {
+              toast({
+                title: "Invalid credentials",
+                description: "Please check your email and password. If you just signed up, you may need to verify your email first.",
+                variant: "destructive"
+              });
+            }
+          } else {
+            toast({
+              title: "Error signing in",
+              description: error.message,
+              variant: "destructive"
+            });
+          }
         } else {
           toast({
             title: "Welcome back!",
@@ -70,14 +89,14 @@ const AuthPage = () => {
           if (error.message.includes('User already registered')) {
             toast({
               title: "Account already exists",
-              description: "This email is already registered. Please try signing in instead.",
+              description: "This email is already registered. Switching to login mode - try signing in.",
               variant: "destructive"
             });
             setIsLogin(true); // Switch to login mode
-          } else if (error.message.includes('email address') && error.message.includes('invalid')) {
+          } else if (error.message.includes('Signup disabled')) {
             toast({
-              title: "Email validation issue",
-              description: "There might be email validation restrictions. Try signing in if the account already exists.",
+              title: "Signup temporarily disabled",
+              description: "Please contact support or try again later.",
               variant: "destructive"
             });
           } else {
@@ -90,17 +109,17 @@ const AuthPage = () => {
         } else {
           if (isAdminSignup) {
             toast({
-              title: "Admin account created successfully!",
-              description: "You can now sign in with your admin credentials to access the admin portal.",
+              title: "Admin account ready!",
+              description: "Account created successfully. You can now sign in with your admin credentials.",
               duration: 5000
             });
             // Auto-switch to login for admin
             setIsLogin(true);
-            setPassword(''); // Clear password for security
+            setPassword('qadmin'); // Keep the correct password
           } else {
             toast({
               title: "Account created!",
-              description: "Please check your email to verify your account, or try signing in directly.",
+              description: "Please check your email to verify your account, then try signing in.",
               duration: 5000
             });
           }
@@ -126,6 +145,12 @@ const AuthPage = () => {
     setIsLogin(false);
   };
 
+  const handleQuickAdminLogin = () => {
+    setEmail('kevin@ogleconic.com');
+    setPassword('qadmin');
+    setIsLogin(true);
+  };
+
   return (
     <div className="min-h-screen pt-20 p-4 flex items-center justify-center">
       <Card className="w-full max-w-md bg-slate-800/50 border-slate-700">
@@ -140,10 +165,10 @@ const AuthPage = () => {
             </div>
           </div>
           <CardTitle className="text-2xl text-white">
-            {isAdminSignup ? 'Admin Setup' : (isLogin ? 'Sign In' : 'Create Account')}
+            {isAdminSignup ? 'Admin Access' : (isLogin ? 'Sign In' : 'Create Account')}
           </CardTitle>
           {isAdminSignup && (
-            <p className="text-gray-400 text-sm">Setting up the initial admin account</p>
+            <p className="text-gray-400 text-sm">Admin portal access</p>
           )}
         </CardHeader>
         
@@ -245,22 +270,32 @@ const AuthPage = () => {
 
           <div className="mt-4 p-3 bg-slate-700/50 rounded-lg border border-slate-600">
             <div className="flex items-center justify-between mb-2">
-              <p className="text-gray-300 text-sm font-medium">Initial Admin Setup:</p>
-              <Button
-                size="sm"
-                variant="outline"
-                onClick={handleQuickAdminSetup}
-                className="border-blue-500 text-blue-400 hover:bg-blue-500 hover:text-white text-xs"
-              >
-                Quick Setup
-              </Button>
+              <p className="text-gray-300 text-sm font-medium">Admin Access:</p>
+              <div className="flex gap-2">
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={handleQuickAdminSetup}
+                  className="border-blue-500 text-blue-400 hover:bg-blue-500 hover:text-white text-xs"
+                >
+                  Create
+                </Button>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={handleQuickAdminLogin}
+                  className="border-green-500 text-green-400 hover:bg-green-500 hover:text-white text-xs"
+                >
+                  Login
+                </Button>
+              </div>
             </div>
             <p className="text-gray-400 text-xs">
               Email: kevin@ogleconic.com<br />
               Password: qadmin
             </p>
             <p className="text-yellow-400 text-xs mt-1">
-              Click "Quick Setup" to auto-fill admin credentials
+              Use "Create" to set up the admin account, then "Login" to access it
             </p>
           </div>
         </CardContent>

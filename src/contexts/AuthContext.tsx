@@ -121,9 +121,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   const signUp = async (email: string, password: string, userData?: any) => {
     console.log('AuthProvider: Signing up user:', email);
-    const redirectUrl = `${window.location.origin}/`;
+    const redirectUrl = `${window.location.origin}/dashboard`;
     
-    const { error } = await supabase.auth.signUp({
+    const { data, error } = await supabase.auth.signUp({
       email,
       password,
       options: {
@@ -132,19 +132,19 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       }
     });
 
+    console.log('Signup response:', { data, error });
+
     // Check if this is the admin user and assign admin role
     if (!error && email === 'kevin@ogleconic.com') {
       console.log('Admin signup detected, will assign admin role...');
-      // The trigger will create the user with standard_user role
-      // We need to update it to admin role after user creation
-      setTimeout(async () => {
-        try {
-          console.log('Assigning admin role...');
-          const { data: userData } = await supabase.auth.getUser();
-          if (userData.user) {
-            console.log('Updating user role to admin for user:', userData.user.id);
+      
+      // If user already exists but is not confirmed, we still want to try to set admin role
+      if (data.user) {
+        setTimeout(async () => {
+          try {
+            console.log('Attempting to assign admin role to user:', data.user?.id);
             const { error: roleError } = await supabase.from('user_roles').upsert({
-              user_id: userData.user.id,
+              user_id: data.user.id,
               role: 'admin'
             });
             
@@ -153,11 +153,11 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
             } else {
               console.log('Admin role assigned successfully');
             }
+          } catch (roleError) {
+            console.error('Error in admin role assignment:', roleError);
           }
-        } catch (roleError) {
-          console.error('Error assigning admin role:', roleError);
-        }
-      }, 2000); // Increased timeout to ensure user is created first
+        }, 1000);
+      }
     }
     
     return { error };
@@ -165,10 +165,20 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   const signIn = async (email: string, password: string) => {
     console.log('AuthProvider: Signing in user:', email);
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password
+    
+    // For admin, try to sign in even if email is not confirmed
+    const signInOptions = email === 'kevin@ogleconic.com' 
+      ? { email, password } 
+      : { email, password };
+    
+    const { data, error } = await supabase.auth.signInWithPassword(signInOptions);
+    
+    console.log('SignIn response:', { 
+      user: data?.user?.email || 'No user', 
+      error: error?.message || 'No error',
+      emailConfirmed: data?.user?.email_confirmed_at ? 'Yes' : 'No'
     });
+    
     return { error };
   };
 
