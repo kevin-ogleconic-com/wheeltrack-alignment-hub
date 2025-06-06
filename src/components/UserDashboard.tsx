@@ -8,7 +8,8 @@ import AdminPortal from './AdminPortal';
 import EnhancedVehicleCard from './EnhancedVehicleCard';
 import VehicleDetailModal from './VehicleDetailModal';
 import VehicleSpecificationLookup from './VehicleSpecificationLookup';
-import { Car, Plus, Database, User, LogOut, Shield, Settings } from 'lucide-react';
+import DeviceManagement from './DeviceManagement';
+import { Car, Plus, Database, User, LogOut, Shield, Settings, Smartphone } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
@@ -251,6 +252,10 @@ const UserDashboard = () => {
               <Database className="h-4 w-4 mr-2" />
               Vehicle Specifications
             </TabsTrigger>
+            <TabsTrigger value="devices" className="data-[state=active]:bg-slate-700">
+              <Smartphone className="h-4 w-4 mr-2" />
+              Device Management
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="records">
@@ -292,6 +297,10 @@ const UserDashboard = () => {
 
           <TabsContent value="specifications">
             <VehicleSpecificationLookup />
+          </TabsContent>
+
+          <TabsContent value="devices">
+            <DeviceManagement />
           </TabsContent>
         </Tabs>
 

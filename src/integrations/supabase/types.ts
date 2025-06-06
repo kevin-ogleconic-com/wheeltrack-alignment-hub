@@ -274,6 +274,10 @@ export type Database = {
         }
         Returns: boolean
       }
+      update_device_auth_timestamp: {
+        Args: { _uid_96bit: string }
+        Returns: boolean
+      }
     }
     Enums: {
       app_role: "admin" | "technical_support" | "standard_user"
