@@ -5,3 +5,40 @@ deployment:
     - export DEPLOYPATH=/home/ludihnya/quicalign.com
     # Copy all files from your repository to the DEPLOYPATH
     - /bin/cp -R * $DEPLOYPATH
+    
+    # 1. Clean up previous build/deployed files in the target directory (optional, but good for clean deployments)
+    #    Use with caution! This clears your public_html/domain_folder
+    - /bin/rm -rf $DEPLOYPATH/*
+    
+    # 2. Install Node.js dependencies
+    #    Choose the package manager you use: npm, yarn, or bun
+    - /usr/local/bin/npm install # For npm users
+    # - /opt/cpanel/ea-nodejs10/bin/npm install # Alternative npm path if the above doesn't work
+    # - /usr/local/bin/yarn install # For yarn users
+    # - /usr/local/bin/bun install # For bun users
+
+    # 3. Run the Vite build command
+    #    This will create the 'dist' folder in your repository on the server
+    - /usr/local/bin/npm run build # For npm users
+    # - /opt/cpanel/ea-nodejs10/bin/npm run build # Alternative npm path if the above doesn't work
+    # - /usr/local/bin/yarn build # For yarn users
+    # - /usr/local/bin/bun run build # For bun users
+
+    # 4. Copy the contents of the 'dist' folder to your public deployment path
+    - /bin/cp -R dist/* $DEPLOYPATH
+    - /bin/cp -R dist/.htaccess $DEPLOYPATH # Copy .htaccess if it's in your dist (Vite typically puts it there for routing)
+
+    # 5. (Optional but recommended) Add the .htaccess for client-side routing if not already handled by Vite build
+    #    Make sure this is the same .htaccess content you'd put manually.
+    #    You can also commit this .htaccess file to your repository's root alongside .cpanel.yml
+    #    If you place it in your repository's root, remove the next block.
+    #    If you rely on Vite placing it in dist, keep the `cp dist/.htaccess` line above.
+    - echo "<IfModule mod_rewrite.c>" > $DEPLOYPATH/.htaccess
+    - echo "  RewriteEngine On" >> $DEPLOYPATH/.htaccess
+    - echo "  RewriteBase /" >> $DEPLOYPATH/.htaccess
+    - echo "  RewriteRule ^index\\.html$ - [L]" >> $DEPLOYPATH/.htaccess
+    - echo "  RewriteCond %{REQUEST_FILENAME} !-f" >> $DEPLOYPATH/.htaccess
+    - echo "  RewriteCond %{REQUEST_FILENAME} !-d" >> $DEPLOYPATH/.htaccess
+    - echo "  RewriteCond %{REQUEST_FILENAME} !-l" >> $DEPLOYPATH/.htaccess
+    - echo "  RewriteRule . /index.html [L]" >> $DEPLOYPATH/.htaccess
+    - echo "</IfModule>" >> $DEPLOYPATH/.htaccess
