@@ -29,8 +29,10 @@ const AuthPage = () => {
 
     try {
       if (isLogin) {
+        console.log('Attempting to sign in with:', email);
         const { error } = await signIn(email, password);
         if (error) {
+          console.error('Sign in error:', error);
           toast({
             title: "Error signing in",
             description: error.message,
@@ -44,10 +46,12 @@ const AuthPage = () => {
           navigate('/dashboard');
         }
       } else {
+        console.log('Attempting to sign up with:', email);
+        
         if (isAdminSignup && password !== 'qadmin') {
           toast({
             title: "Invalid admin credentials",
-            description: "Please use the correct initial admin password.",
+            description: "Please use the correct initial admin password: qadmin",
             variant: "destructive"
           });
           setLoading(false);
@@ -55,31 +59,55 @@ const AuthPage = () => {
         }
 
         const { error } = await signUp(email, password, {
-          first_name: firstName,
-          last_name: lastName
+          first_name: firstName || (isAdminSignup ? 'Admin' : ''),
+          last_name: lastName || (isAdminSignup ? 'User' : '')
         });
         
         if (error) {
-          toast({
-            title: "Error creating account",
-            description: error.message,
-            variant: "destructive"
-          });
-        } else {
-          if (isAdminSignup) {
+          console.error('Sign up error:', error);
+          
+          // Handle specific error cases
+          if (error.message.includes('User already registered')) {
             toast({
-              title: "Admin account created!",
-              description: "Please check your email to verify your account, then sign in to access the admin portal."
+              title: "Account already exists",
+              description: "This email is already registered. Please try signing in instead.",
+              variant: "destructive"
+            });
+            setIsLogin(true); // Switch to login mode
+          } else if (error.message.includes('email address') && error.message.includes('invalid')) {
+            toast({
+              title: "Email validation issue",
+              description: "There might be email validation restrictions. Try signing in if the account already exists.",
+              variant: "destructive"
             });
           } else {
             toast({
+              title: "Error creating account",
+              description: error.message,
+              variant: "destructive"
+            });
+          }
+        } else {
+          if (isAdminSignup) {
+            toast({
+              title: "Admin account created successfully!",
+              description: "You can now sign in with your admin credentials to access the admin portal.",
+              duration: 5000
+            });
+            // Auto-switch to login for admin
+            setIsLogin(true);
+            setPassword(''); // Clear password for security
+          } else {
+            toast({
               title: "Account created!",
-              description: "Please check your email to verify your account."
+              description: "Please check your email to verify your account, or try signing in directly.",
+              duration: 5000
             });
           }
         }
       }
     } catch (error) {
+      console.error('Authentication error:', error);
       toast({
         title: "Something went wrong",
         description: "Please try again later.",
@@ -88,6 +116,14 @@ const AuthPage = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleQuickAdminSetup = () => {
+    setEmail('admin@alignpro.com');
+    setPassword('qadmin');
+    setFirstName('Admin');
+    setLastName('User');
+    setIsLogin(false);
   };
 
   return (
@@ -208,10 +244,23 @@ const AuthPage = () => {
           </div>
 
           <div className="mt-4 p-3 bg-slate-700/50 rounded-lg border border-slate-600">
-            <p className="text-gray-300 text-sm font-medium mb-1">Initial Admin Setup:</p>
+            <div className="flex items-center justify-between mb-2">
+              <p className="text-gray-300 text-sm font-medium">Initial Admin Setup:</p>
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={handleQuickAdminSetup}
+                className="border-blue-500 text-blue-400 hover:bg-blue-500 hover:text-white text-xs"
+              >
+                Quick Setup
+              </Button>
+            </div>
             <p className="text-gray-400 text-xs">
               Email: admin@alignpro.com<br />
               Password: qadmin
+            </p>
+            <p className="text-yellow-400 text-xs mt-1">
+              Click "Quick Setup" to auto-fill admin credentials
             </p>
           </div>
         </CardContent>

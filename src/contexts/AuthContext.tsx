@@ -134,21 +134,30 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
     // Check if this is the admin user and assign admin role
     if (!error && email === 'admin@alignpro.com') {
+      console.log('Admin signup detected, will assign admin role...');
       // The trigger will create the user with standard_user role
       // We need to update it to admin role after user creation
       setTimeout(async () => {
         try {
+          console.log('Assigning admin role...');
           const { data: userData } = await supabase.auth.getUser();
           if (userData.user) {
-            await supabase.from('user_roles').upsert({
+            console.log('Updating user role to admin for user:', userData.user.id);
+            const { error: roleError } = await supabase.from('user_roles').upsert({
               user_id: userData.user.id,
               role: 'admin'
             });
+            
+            if (roleError) {
+              console.error('Error assigning admin role:', roleError);
+            } else {
+              console.log('Admin role assigned successfully');
+            }
           }
         } catch (roleError) {
           console.error('Error assigning admin role:', roleError);
         }
-      }, 1000);
+      }, 2000); // Increased timeout to ensure user is created first
     }
     
     return { error };
