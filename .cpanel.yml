@@ -1,0 +1,7 @@
+---
+deployment:
+  tasks:
+    # Define the deployment path (your domain's document root)
+    - export DEPLOYPATH=/home/ludihnya/quicalign.com
+    # Copy all files from your repository to the DEPLOYPATH
+    - /bin/cp -R * $DEPLOYPATH
