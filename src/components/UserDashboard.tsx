@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -61,6 +62,7 @@ const UserDashboard = () => {
     if (!user) return;
     
     try {
+      console.log('Fetching alignment records for user:', user.id);
       const { data, error } = await supabase
         .from('alignment_records')
         .select(`
@@ -75,6 +77,8 @@ const UserDashboard = () => {
         .order('created_at', { ascending: false });
 
       if (error) throw error;
+      
+      console.log('Fetched records:', data);
       
       // Type assertion to ensure completion_status matches our expected union type
       const typedData = (data || []).map(record => ({
@@ -141,6 +145,8 @@ const UserDashboard = () => {
   ).length;
   const completedRecords = records.filter(r => r.completion_status === 'completed').length;
   const pendingRecords = records.filter(r => r.completion_status === 'pending').length;
+
+  console.log('Dashboard stats:', { totalRecords, thisMonthRecords, completedRecords, pendingRecords });
 
   return (
     <div className="min-h-screen pt-20 p-4">
