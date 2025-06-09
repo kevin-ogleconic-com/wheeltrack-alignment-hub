@@ -111,6 +111,33 @@ export type Database = {
         }
         Relationships: []
       }
+      devices: {
+        Row: {
+          assigned_at: string | null
+          created_at: string | null
+          id: string
+          status: string | null
+          uid: string
+          user_id: string | null
+        }
+        Insert: {
+          assigned_at?: string | null
+          created_at?: string | null
+          id?: string
+          status?: string | null
+          uid: string
+          user_id?: string | null
+        }
+        Update: {
+          assigned_at?: string | null
+          created_at?: string | null
+          id?: string
+          status?: string | null
+          uid?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           created_at: string
@@ -263,6 +290,17 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      assign_device_to_user: {
+        Args: { device_uid: string }
+        Returns: {
+          assigned_at: string | null
+          created_at: string | null
+          id: string
+          status: string | null
+          uid: string
+          user_id: string | null
+        }[]
+      }
       get_user_role: {
         Args: { _user_id: string }
         Returns: Database["public"]["Enums"]["app_role"]

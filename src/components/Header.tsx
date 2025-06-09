@@ -1,61 +1,107 @@
 
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Car, Menu } from "lucide-react";
+import { Car, Menu, X } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "@/contexts/AuthContext";
 
 const Header = () => {
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
   const navigate = useNavigate();
-  const { user } = useAuth();
+
+  const scrollToSection = (sectionId: string) => {
+    const element = document.getElementById(sectionId);
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth' });
+    }
+    setIsMenuOpen(false);
+  };
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 glass-effect border-b border-white/10">
-      <div className="container mx-auto px-4 h-16 flex items-center justify-between">
-        <div className="flex items-center space-x-2">
-          <div className="p-2 rounded-lg gradient-blue">
-            <Car className="h-6 w-6 text-white" />
+    <header className="fixed top-0 left-0 right-0 z-50 bg-slate-900/95 backdrop-blur-sm border-b border-slate-800">
+      <div className="container mx-auto px-4">
+        <div className="flex items-center justify-between h-16">
+          {/* Logo */}
+          <div className="flex items-center space-x-2">
+            <div className="p-2 rounded-lg gradient-blue">
+              <Car className="h-6 w-6 text-white" />
+            </div>
+            <span className="text-xl font-bold text-white">WheelTrack</span>
           </div>
-          <span className="text-xl font-bold text-white">AlignPro</span>
-        </div>
-        
-        <nav className="hidden md:flex items-center space-x-6">
-          <a href="#features" className="text-gray-300 hover:text-white transition-colors">Features</a>
-          <a href="#pricing" className="text-gray-300 hover:text-white transition-colors">Pricing</a>
-          <a href="#about" className="text-gray-300 hover:text-white transition-colors">About</a>
-        </nav>
-        
-        <div className="flex items-center space-x-4">
-          {user ? (
-            <Button 
-              onClick={() => navigate('/dashboard')}
-              size="sm" 
-              className="gradient-blue text-white border-0 hover:opacity-90"
+
+          {/* Desktop Navigation */}
+          <nav className="hidden md:flex items-center space-x-8">
+            <button 
+              onClick={() => scrollToSection('features')}
+              className="text-gray-300 hover:text-white transition-colors"
             >
-              Dashboard
+              Features
+            </button>
+            <button 
+              onClick={() => scrollToSection('pricing')}
+              className="text-gray-300 hover:text-white transition-colors"
+            >
+              Pricing
+            </button>
+            <button 
+              onClick={() => navigate('/contact')}
+              className="text-gray-300 hover:text-white transition-colors"
+            >
+              Contact
+            </button>
+          </nav>
+
+          {/* Desktop Auth Button */}
+          <div className="hidden md:flex items-center space-x-4">
+            <Button 
+              variant="ghost" 
+              className="text-gray-300 hover:text-white"
+              onClick={() => navigate('/auth')}
+            >
+              Sign In / Sign Up
             </Button>
-          ) : (
-            <>
-              <Button 
-                onClick={() => navigate('/auth')}
-                variant="ghost" 
-                size="sm" 
-                className="text-gray-300 hover:text-white"
-              >
-                Login
-              </Button>
-              <Button 
-                onClick={() => navigate('/auth')}
-                size="sm" 
-                className="gradient-blue text-white border-0 hover:opacity-90"
-              >
-                Sign Up
-              </Button>
-            </>
-          )}
-          <Button variant="ghost" size="sm" className="md:hidden">
-            <Menu className="h-5 w-5" />
-          </Button>
+          </div>
+
+          {/* Mobile Menu Button */}
+          <button
+            className="md:hidden text-gray-300 hover:text-white"
+            onClick={() => setIsMenuOpen(!isMenuOpen)}
+          >
+            {isMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+          </button>
         </div>
+
+        {/* Mobile Menu */}
+        {isMenuOpen && (
+          <div className="md:hidden py-4 border-t border-slate-800">
+            <nav className="flex flex-col space-y-4">
+              <button 
+                onClick={() => scrollToSection('features')}
+                className="text-gray-300 hover:text-white transition-colors text-left"
+              >
+                Features
+              </button>
+              <button 
+                onClick={() => scrollToSection('pricing')}
+                className="text-gray-300 hover:text-white transition-colors text-left"
+              >
+                Pricing
+              </button>
+              <button 
+                onClick={() => navigate('/contact')}
+                className="text-gray-300 hover:text-white transition-colors text-left"
+              >
+                Contact
+              </button>
+              <Button 
+                variant="ghost" 
+                className="text-gray-300 hover:text-white justify-start px-0"
+                onClick={() => navigate('/auth')}
+              >
+                Sign In / Sign Up
+              </Button>
+            </nav>
+          </div>
+        )}
       </div>
     </header>
   );
