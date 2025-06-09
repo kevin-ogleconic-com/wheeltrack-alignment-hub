@@ -7,6 +7,7 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 import Index from "./pages/Index";
 import AuthPage from "./components/AuthPage";
+import AdminAccess from "./components/AdminAccess";
 import Signup from "./pages/Signup";
 import UserDashboard from "./components/UserDashboard";
 import NotFound from "./pages/NotFound";
@@ -57,6 +58,11 @@ const App = () => (
             <Route path="/auth" element={
               <PublicRoute>
                 <AuthPage />
+              </PublicRoute>
+            } />
+            <Route path="/admin" element={
+              <PublicRoute>
+                <AdminAccess />
               </PublicRoute>
             } />
             <Route path="/signup" element={

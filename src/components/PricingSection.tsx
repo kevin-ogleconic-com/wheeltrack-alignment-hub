@@ -10,7 +10,7 @@ const PricingSection = () => {
   const plans = [
     {
       name: "Basic",
-      price: "$199",
+      price: "$99",
       period: "/month",
       description: "Perfect for small shops",
       features: [
@@ -25,7 +25,7 @@ const PricingSection = () => {
     },
     {
       name: "Pro",
-      price: "$399",
+      price: "$199",
       period: "/month",
       description: "Best for growing businesses",
       features: [
