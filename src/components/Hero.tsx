@@ -1,7 +1,7 @@
 
 import { ArrowRight, Play, Wrench, Target, TrendingUp } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { VideoModal } from "./VideoModal";
+import VideoModal from "./VideoModal";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
