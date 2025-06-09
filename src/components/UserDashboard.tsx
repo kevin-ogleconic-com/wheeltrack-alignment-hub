@@ -1,18 +1,14 @@
 
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 import { supabase } from '@/integrations/supabase/client';
 import AlignmentRecordForm from './AlignmentRecordForm';
 import AdminPortal from './AdminPortal';
-import EnhancedVehicleCard from './EnhancedVehicleCard';
 import VehicleDetailModal from './VehicleDetailModal';
-import VehicleSpecificationLookup from './VehicleSpecificationLookup';
-import DeviceManagement from './DeviceManagement';
-import { Car, Plus, Database, User, LogOut, Shield, Settings, Smartphone } from 'lucide-react';
+import DashboardHeader from './dashboard/DashboardHeader';
+import DashboardStats from './dashboard/DashboardStats';
+import DashboardTabs from './dashboard/DashboardTabs';
 import { useToast } from '@/hooks/use-toast';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 interface AlignmentRecord {
   id: string;
@@ -151,166 +147,29 @@ const UserDashboard = () => {
   return (
     <div className="min-h-screen pt-20 p-4">
       <div className="container mx-auto max-w-7xl">
-        {/* Header */}
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8">
-          <div>
-            <h1 className="text-3xl font-bold text-white mb-2">Dashboard</h1>
-            <div className="flex items-center gap-2">
-              <p className="text-gray-400">Welcome back, {user?.email}</p>
-              {userRole && (
-                <span className={`px-2 py-1 rounded text-xs font-medium ${
-                  userRole === 'admin' ? 'bg-red-500/20 text-red-400' :
-                  userRole === 'technical_support' ? 'bg-yellow-500/20 text-yellow-400' :
-                  'bg-green-500/20 text-green-400'
-                }`}>
-                  {userRole.replace('_', ' ').toUpperCase()}
-                </span>
-              )}
-            </div>
-          </div>
-          <div className="flex flex-col sm:flex-row gap-3">
-            {canAccessAdmin && (
-              <Button 
-                onClick={() => setShowAdminPortal(true)}
-                className="gradient-blue text-white border-0 hover:opacity-90"
-              >
-                <Shield className="h-4 w-4 mr-2" />
-                Admin Portal
-              </Button>
-            )}
-            <Button 
-              onClick={() => setShowForm(true)}
-              className="gradient-blue text-white border-0 hover:opacity-90"
-            >
-              <Plus className="h-4 w-4 mr-2" />
-              Add Record
-            </Button>
-            <Button 
-              onClick={handleSignOut}
-              variant="outline"
-              className="border-slate-600 text-gray-300 hover:bg-slate-700"
-            >
-              <LogOut className="h-4 w-4 mr-2" />
-              Sign Out
-            </Button>
-          </div>
-        </div>
+        <DashboardHeader
+          userEmail={user?.email}
+          userRole={userRole}
+          canAccessAdmin={canAccessAdmin}
+          onShowAdminPortal={() => setShowAdminPortal(true)}
+          onShowForm={() => setShowForm(true)}
+          onSignOut={handleSignOut}
+        />
 
-        {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-          <Card className="bg-slate-800/50 border-slate-700">
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-gray-400 text-sm">Total Records</p>
-                  <p className="text-2xl font-bold text-white">{totalRecords}</p>
-                </div>
-                <Database className="h-5 w-5 text-blue-400" />
-              </div>
-            </CardContent>
-          </Card>
-          
-          <Card className="bg-slate-800/50 border-slate-700">
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-gray-400 text-sm">This Month</p>
-                  <p className="text-2xl font-bold text-white">{thisMonthRecords}</p>
-                </div>
-                <Car className="h-5 w-5 text-green-400" />
-              </div>
-            </CardContent>
-          </Card>
-          
-          <Card className="bg-slate-800/50 border-slate-700">
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-gray-400 text-sm">Completed</p>
-                  <p className="text-2xl font-bold text-white">{completedRecords}</p>
-                </div>
-                <Settings className="h-5 w-5 text-purple-400" />
-              </div>
-            </CardContent>
-          </Card>
-          
-          <Card className="bg-slate-800/50 border-slate-700">
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-gray-400 text-sm">Pending</p>
-                  <p className="text-2xl font-bold text-white">{pendingRecords}</p>
-                </div>
-                <User className="h-5 w-5 text-yellow-400" />
-              </div>
-            </CardContent>
-          </Card>
-        </div>
+        <DashboardStats
+          totalRecords={totalRecords}
+          thisMonthRecords={thisMonthRecords}
+          completedRecords={completedRecords}
+          pendingRecords={pendingRecords}
+        />
 
-        {/* Main Content Tabs */}
-        <Tabs defaultValue="records" className="space-y-6">
-          <TabsList className="bg-slate-800 border-slate-700">
-            <TabsTrigger value="records" className="data-[state=active]:bg-slate-700">
-              <Car className="h-4 w-4 mr-2" />
-              Alignment Records
-            </TabsTrigger>
-            <TabsTrigger value="specifications" className="data-[state=active]:bg-slate-700">
-              <Database className="h-4 w-4 mr-2" />
-              Vehicle Specifications
-            </TabsTrigger>
-            <TabsTrigger value="devices" className="data-[state=active]:bg-slate-700">
-              <Smartphone className="h-4 w-4 mr-2" />
-              Device Management
-            </TabsTrigger>
-          </TabsList>
+        <DashboardTabs
+          records={records}
+          loading={loading}
+          onShowForm={() => setShowForm(true)}
+          onViewDetails={handleViewDetails}
+        />
 
-          <TabsContent value="records">
-            <Card className="bg-slate-800/50 border-slate-700">
-              <CardHeader>
-                <CardTitle className="text-white">Recent Alignment Records</CardTitle>
-              </CardHeader>
-              <CardContent>
-                {loading ? (
-                  <div className="text-center py-8">
-                    <p className="text-gray-400">Loading records...</p>
-                  </div>
-                ) : records.length === 0 ? (
-                  <div className="text-center py-8">
-                    <Car className="h-12 w-12 text-gray-500 mx-auto mb-4" />
-                    <p className="text-gray-400 mb-4">No alignment records yet</p>
-                    <Button 
-                      onClick={() => setShowForm(true)}
-                      className="gradient-blue text-white border-0 hover:opacity-90"
-                    >
-                      <Plus className="h-4 w-4 mr-2" />
-                      Add Your First Record
-                    </Button>
-                  </div>
-                ) : (
-                  <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
-                    {records.map((record) => (
-                      <EnhancedVehicleCard 
-                        key={record.id} 
-                        record={record}
-                        onViewDetails={handleViewDetails}
-                      />
-                    ))}
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          <TabsContent value="specifications">
-            <VehicleSpecificationLookup />
-          </TabsContent>
-
-          <TabsContent value="devices">
-            <DeviceManagement />
-          </TabsContent>
-        </Tabs>
-
-        {/* Vehicle Detail Modal */}
         <VehicleDetailModal 
           record={selectedRecord}
           isOpen={showDetailModal}
