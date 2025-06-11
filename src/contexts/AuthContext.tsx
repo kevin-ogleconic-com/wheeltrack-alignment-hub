@@ -24,6 +24,17 @@ export const useAuth = () => {
   return context;
 };
 
+// Input validation helpers
+const validateEmail = (email: string): boolean => {
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return emailRegex.test(email);
+};
+
+const validatePassword = (password: string): boolean => {
+  // Minimum 8 characters, at least one letter and one number
+  return password.length >= 8 && /[A-Za-z]/.test(password) && /\d/.test(password);
+};
+
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
@@ -121,6 +132,16 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   const signUp = async (email: string, password: string, userData?: any) => {
     console.log('AuthProvider: Signing up user:', email);
+    
+    // Input validation
+    if (!validateEmail(email)) {
+      return { error: { message: 'Please enter a valid email address' } };
+    }
+    
+    if (!validatePassword(password)) {
+      return { error: { message: 'Password must be at least 8 characters long and contain both letters and numbers' } };
+    }
+    
     const redirectUrl = `${window.location.origin}/dashboard`;
     
     const { data, error } = await supabase.auth.signUp({
@@ -133,32 +154,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     });
 
     console.log('Signup response:', { data, error });
-
-    // Check if this is the admin user and assign admin role
-    if (!error && email === 'kevin@ogleconic.com') {
-      console.log('Admin signup detected, will assign admin role...');
-      
-      // If user already exists but is not confirmed, we still want to try to set admin role
-      if (data.user) {
-        setTimeout(async () => {
-          try {
-            console.log('Attempting to assign admin role to user:', data.user?.id);
-            const { error: roleError } = await supabase.from('user_roles').upsert({
-              user_id: data.user.id,
-              role: 'admin'
-            });
-            
-            if (roleError) {
-              console.error('Error assigning admin role:', roleError);
-            } else {
-              console.log('Admin role assigned successfully');
-            }
-          } catch (roleError) {
-            console.error('Error in admin role assignment:', roleError);
-          }
-        }, 1000);
-      }
-    }
     
     return { error };
   };
@@ -166,12 +161,19 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const signIn = async (email: string, password: string) => {
     console.log('AuthProvider: Signing in user:', email);
     
-    // For admin, try to sign in even if email is not confirmed
-    const signInOptions = email === 'kevin@ogleconic.com' 
-      ? { email, password } 
-      : { email, password };
+    // Input validation
+    if (!validateEmail(email)) {
+      return { error: { message: 'Please enter a valid email address' } };
+    }
     
-    const { data, error } = await supabase.auth.signInWithPassword(signInOptions);
+    if (!password || password.length < 6) {
+      return { error: { message: 'Please enter your password' } };
+    }
+    
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email,
+      password
+    });
     
     console.log('SignIn response:', { 
       user: data?.user?.email || 'No user', 

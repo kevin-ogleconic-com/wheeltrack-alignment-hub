@@ -11,10 +11,10 @@ import { useToast } from '@/hooks/use-toast';
 
 const AdminAccess = () => {
   const [isLogin, setIsLogin] = useState(true);
-  const [email, setEmail] = useState('kevin@ogleconic.com');
-  const [password, setPassword] = useState('qadmin');
-  const [firstName, setFirstName] = useState('Kevin');
-  const [lastName, setLastName] = useState('Admin');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
   const [loading, setLoading] = useState(false);
   
   const { signIn, signUp } = useAuth();
@@ -31,75 +31,54 @@ const AdminAccess = () => {
         const { error } = await signIn(email, password);
         if (error) {
           console.error('Admin sign in error:', error);
-          
-          if (error.message.includes('Invalid login credentials')) {
-            toast({
-              title: "Admin login issue",
-              description: "Please ensure you're using 'qadmin' as the password. If the account was just created, try refreshing and logging in again.",
-              variant: "destructive",
-              duration: 7000
-            });
-          } else {
-            toast({
-              title: "Error signing in",
-              description: error.message,
-              variant: "destructive"
-            });
-          }
+          toast({
+            title: "Error signing in",
+            description: error.message,
+            variant: "destructive"
+          });
         } else {
           toast({
-            title: "Welcome back, Admin!",
+            title: "Welcome back!",
             description: "You've successfully signed in."
           });
           navigate('/dashboard');
         }
       } else {
-        console.log('Attempting to create admin account with:', email);
+        console.log('Attempting to create account with:', email);
         
-        if (password !== 'qadmin') {
-          toast({
-            title: "Invalid admin credentials",
-            description: "Please use the correct initial admin password: qadmin",
-            variant: "destructive"
-          });
-          setLoading(false);
-          return;
-        }
-
         const { error } = await signUp(email, password, {
           first_name: firstName,
           last_name: lastName
         });
         
         if (error) {
-          console.error('Admin sign up error:', error);
+          console.error('Sign up error:', error);
           
           if (error.message.includes('User already registered')) {
             toast({
-              title: "Admin account already exists",
+              title: "Account already exists",
               description: "This email is already registered. Switching to login mode - try signing in.",
               variant: "destructive"
             });
             setIsLogin(true);
           } else {
             toast({
-              title: "Error creating admin account",
+              title: "Error creating account",
               description: error.message,
               variant: "destructive"
             });
           }
         } else {
           toast({
-            title: "Admin account ready!",
-            description: "Account created successfully. You can now sign in with your admin credentials.",
+            title: "Account created successfully!",
+            description: "Please check your email to confirm your account, then sign in.",
             duration: 5000
           });
           setIsLogin(true);
-          setPassword('qadmin');
         }
       }
     } catch (error) {
-      console.error('Admin authentication error:', error);
+      console.error('Authentication error:', error);
       toast({
         title: "Something went wrong",
         description: "Please try again later.",
@@ -108,20 +87,6 @@ const AdminAccess = () => {
     } finally {
       setLoading(false);
     }
-  };
-
-  const handleQuickSetup = () => {
-    setEmail('kevin@ogleconic.com');
-    setPassword('qadmin');
-    setFirstName('Kevin');
-    setLastName('Admin');
-    setIsLogin(false);
-  };
-
-  const handleQuickLogin = () => {
-    setEmail('kevin@ogleconic.com');
-    setPassword('qadmin');
-    setIsLogin(true);
   };
 
   return (
@@ -134,9 +99,11 @@ const AdminAccess = () => {
             </div>
           </div>
           <CardTitle className="text-2xl text-white">
-            Admin Access
+            {isLogin ? 'Admin Sign In' : 'Create Admin Account'}
           </CardTitle>
-          <p className="text-gray-400 text-sm">Admin portal access</p>
+          <p className="text-gray-400 text-sm">
+            {isLogin ? 'Sign in to access admin features' : 'Create your admin account'}
+          </p>
         </CardHeader>
         
         <CardContent>
@@ -150,7 +117,7 @@ const AdminAccess = () => {
                     <Input
                       id="firstName"
                       type="text"
-                      placeholder="Kevin"
+                      placeholder="First name"
                       value={firstName}
                       onChange={(e) => setFirstName(e.target.value)}
                       className="pl-10 bg-slate-700 border-slate-600 text-white"
@@ -165,7 +132,7 @@ const AdminAccess = () => {
                     <Input
                       id="lastName"
                       type="text"
-                      placeholder="Admin"
+                      placeholder="Last name"
                       value={lastName}
                       onChange={(e) => setLastName(e.target.value)}
                       className="pl-10 bg-slate-700 border-slate-600 text-white"
@@ -183,18 +150,13 @@ const AdminAccess = () => {
                 <Input
                   id="email"
                   type="email"
-                  placeholder="kevin@ogleconic.com"
+                  placeholder="Enter your email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   className="pl-10 bg-slate-700 border-slate-600 text-white"
                   required
                 />
               </div>
-              {!isLogin && email === 'kevin@ogleconic.com' && (
-                <p className="text-yellow-400 text-xs">
-                  Creating initial admin account. Use password: qadmin
-                </p>
-              )}
             </div>
             
             <div className="space-y-2">
@@ -204,13 +166,18 @@ const AdminAccess = () => {
                 <Input
                   id="password"
                   type="password"
-                  placeholder="qadmin"
+                  placeholder={isLogin ? "Enter your password" : "Create a secure password"}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   className="pl-10 bg-slate-700 border-slate-600 text-white"
                   required
                 />
               </div>
+              {!isLogin && (
+                <p className="text-gray-400 text-xs">
+                  Password must be at least 8 characters with letters and numbers
+                </p>
+              )}
             </div>
             
             <Button 
@@ -218,51 +185,27 @@ const AdminAccess = () => {
               className="w-full gradient-blue text-white border-0 hover:opacity-90"
               disabled={loading}
             >
-              {loading ? 'Please wait...' : (isLogin ? 'Sign In as Admin' : 'Create Admin Account')}
+              {loading ? 'Please wait...' : (isLogin ? 'Sign In' : 'Create Account')}
             </Button>
           </form>
           
           <div className="mt-6 text-center">
             <p className="text-gray-400">
-              {isLogin ? "Need to create admin account?" : "Already have admin account?"}
+              {isLogin ? "Need to create an account?" : "Already have an account?"}
             </p>
             <Button
               variant="ghost"
               onClick={() => setIsLogin(!isLogin)}
               className="text-blue-400 hover:text-blue-300"
             >
-              {isLogin ? 'Create admin account' : 'Sign in as admin'}
+              {isLogin ? 'Create account' : 'Sign in'}
             </Button>
           </div>
 
           <div className="mt-4 p-3 bg-slate-700/50 rounded-lg border border-slate-600">
-            <div className="flex items-center justify-between mb-2">
-              <p className="text-gray-300 text-sm font-medium">Quick Setup:</p>
-              <div className="flex gap-2">
-                <Button
-                  size="sm"
-                  variant="outline"
-                  onClick={handleQuickSetup}
-                  className="border-blue-500 text-blue-400 hover:bg-blue-500 hover:text-white text-xs"
-                >
-                  Create
-                </Button>
-                <Button
-                  size="sm"
-                  variant="outline"
-                  onClick={handleQuickLogin}
-                  className="border-green-500 text-green-400 hover:bg-green-500 hover:text-white text-xs"
-                >
-                  Login
-                </Button>
-              </div>
-            </div>
+            <p className="text-gray-300 text-sm font-medium mb-2">Security Note:</p>
             <p className="text-gray-400 text-xs">
-              Email: kevin@ogleconic.com<br />
-              Password: qadmin
-            </p>
-            <p className="text-yellow-400 text-xs mt-1">
-              Use "Create" to set up the admin account, then "Login" to access it
+              Admin roles must be assigned manually through the database after account creation for security purposes.
             </p>
           </div>
         </CardContent>
