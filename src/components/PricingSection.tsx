@@ -10,22 +10,22 @@ const PricingSection = () => {
   const plans = [
     {
       name: "Basic",
-      price: "$99",
-      period: "/month",
+      price: "Free",
+      period: "",
       description: "Perfect for small shops",
       features: [
         "Up to 5 alignments per day",
         "Basic measurement tools",
         "Email support",
         "Monthly reports",
-        "Standard accuracy (±0.2°)"
+        "Standard accuracy (±0.05°)"
       ],
       popular: false,
       planId: "basic"
     },
     {
       name: "Pro",
-      price: "$199",
+      price: "$99",
       period: "/month",
       description: "Best for growing businesses",
       features: [
@@ -33,7 +33,7 @@ const PricingSection = () => {
         "Advanced analytics",
         "Priority phone support",
         "Real-time reporting",
-        "Premium accuracy (±0.1°)",
+        "Premium accuracy (±0.05°)",
         "Custom branded reports",
         "API access"
       ],

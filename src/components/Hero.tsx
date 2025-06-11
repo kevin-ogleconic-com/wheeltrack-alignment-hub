@@ -40,7 +40,7 @@ const Hero = () => {
           {/* Stats */}
           <div className="flex flex-wrap justify-center gap-8 mb-12">
             <div className="text-center">
-              <div className="text-3xl font-bold text-white">±0.1°</div>
+              <div className="text-3xl font-bold text-white">±0.05°</div>
               <div className="text-gray-400">Precision</div>
             </div>
             <div className="text-center">
@@ -86,7 +86,7 @@ const Hero = () => {
             <div className="text-center p-6 rounded-lg bg-slate-800/30 border border-slate-700/50">
               <Target className="h-12 w-12 text-blue-400 mx-auto mb-4" />
               <h3 className="text-xl font-semibold text-white mb-2">Professional Accuracy</h3>
-              <p className="text-gray-400">±0.1° precision matching $50,000+ systems</p>
+              <p className="text-gray-400">±0.05° precision matching $50,000+ systems</p>
             </div>
             
             <div className="text-center p-6 rounded-lg bg-slate-800/30 border border-slate-700/50">
